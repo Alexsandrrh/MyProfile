@@ -1,0 +1,31 @@
+.section-item {
+    max-width: 750px;
+
+    &__text {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+        flex-direction: row;
+
+        .section-item__title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.4em;
+        }
+
+        .section-item__link {
+            font-family: 'Roboto Slab', serif;
+            font-size: 40px;
+            font-weight: 700;
+            line-height: 1.4em;
+            text-decoration: none;
+            padding: 5px 10px;
+            margin: 0 10px 0 0;
+            &:hover {
+                background: #111111;
+            }
+        }
+    }
+}

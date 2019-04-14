@@ -1,0 +1,50 @@
+.social-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+        .social-item__icon {
+            &.-messenger {
+                fill: #c596c7;
+            }
+
+            &.-github {
+                fill: #13ce66;
+            }
+
+            &.-facebook {
+                fill: #00d4aa;
+            }
+
+            &.-twitter {
+                fill: #2ad4ff;
+            }
+
+            &.-vk {
+                fill: #4680c2;
+            }
+
+            &.-telegram {
+                fill: #59f;
+            }
+
+            &.-email {
+                fill: #7f2aff
+            }
+
+            &.-instagram {
+                fill: #bc5fd3;
+            }
+        }
+    }
+
+    &__icon {
+        fill: #111111;
+    }
+}

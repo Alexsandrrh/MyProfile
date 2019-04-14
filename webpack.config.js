@@ -1,0 +1,119 @@
+'use strict';
+
+const webpack = require('webpack');
+const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const SvgSpriteHtmlWebpackPlugin = require('svg-sprite-html-webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const { argv } = require('yargs');
+
+const isDevelop = argv.development;
+const webpackPathConfig = {
+    outputPath: path.resolve(__dirname, './dist'),
+    entryPath: {
+        bundle: path.resolve(__dirname, './src/index.js')
+    }
+};
+
+const optimizationConfig = {
+    minimize: true,
+    minimizer: [new TerserPlugin(), new OptimizeCSSAssetsPlugin()]
+};
+
+module.exports = {
+    mode: isDevelop ? 'development' : 'production',
+    entry: webpackPathConfig.entryPath,
+    devtool: 'inline-cheap-source-map',
+    resolve: { extensions: ['.js', '.jsx', '.sass', '.scss', '.css', '.json'] },
+    performance: { hints: false },
+    output: { path: webpackPathConfig.outputPath, filename: '[name]-[hash].js' },
+    module: {
+        rules: [
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: 'babel-loader'
+            },
+            {
+                test: /\.(scss|sass)$/,
+                exclude: /\node_modules/,
+                use: [
+                    {
+                        loader: isDevelop ? 'style-loader' : MiniCssExtractPlugin.loader,
+                        options: { sourceMap: true }
+                    },
+                    { loader: 'css-loader', options: { sourceMap: true } },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: [
+                                autoprefixer({
+                                    browsers: ['ie >= 8', 'last 15 version']
+                                })
+                            ],
+                            sourceMap: true
+                        }
+                    },
+                    { loader: 'sass-loader', options: { sourceMap: true } }
+                ]
+            },
+            {
+                test: /\.(gif|png|jpg|jpeg|ico)$/,
+                exclude: /node_modules/,
+                include: path.resolve(__dirname, './src/assets/images'),
+                use: 'url-loader?limit=10000&name=[hash].[ext]'
+            },
+            {
+                test: /\.svg$/,
+                exclude: /node_modules/,
+                use: SvgSpriteHtmlWebpackPlugin.getLoader()
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: 'url-loader?limit=10000&name=[hash].[ext]'
+            }
+        ]
+    },
+    plugins: [
+        new CleanWebpackPlugin(['./dist']),
+        new HtmlWebpackPlugin({
+            minify: isDevelop
+                ? false
+                : {
+                      html5: true,
+                      collapseWhitespace: true,
+                      removeAttributeQuotes: true,
+                      removeComments: true,
+                      removeEmptyAttributes: true,
+                      removeOptionalTags: true,
+                      removeRedundantAttributes: true,
+                      removeScriptTypeAttributes: true,
+                      removeStyleLinkTypeAttributese: true,
+                      useShortDoctype: true
+                  },
+            template: path.join(__dirname, './src/assets/index.html'),
+            filename: 'index.html',
+            path: webpackPathConfig.outputPath
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'main-[hash].css',
+            chunkFilename: '[id]-[hash].css'
+        }),
+        new SvgSpriteHtmlWebpackPlugin(),
+        new webpack.NamedModulesPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoEmitOnErrorsPlugin()
+    ],
+    optimization: !isDevelop ? optimizationConfig : {},
+    devServer: {
+        contentBase: path.join(__dirname, 'dist'),
+        historyApiFallback: true,
+        compress: true,
+        port: 3000,
+        stats: 'errors-only'
+    }
+};
